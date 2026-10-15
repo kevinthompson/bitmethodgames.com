@@ -1,0 +1,117 @@
+---
+import { SITE } from '../site.config';
+
+const action = `https://buttondown.com/api/emails/embed-subscribe/${SITE.buttondownUsername}`;
+---
+
+<form class="signup" action={action} method="post" data-signup>
+  <label for="signup-email">Get notified when our first game launches.</label>
+  <div class="row">
+    <input
+      id="signup-email"
+      type="email"
+      name="email"
+      placeholder="you@example.com"
+      autocomplete="email"
+      required
+    />
+    <input type="hidden" name="tag" value="website" />
+    <button type="submit">Sign up</button>
+  </div>
+  <p class="status" role="status" aria-live="polite" hidden></p>
+</form>
+
+<script>
+  // Without JS the form posts straight to Buttondown, which shows its own
+  // confirmation page. With JS we submit in the background and stay here.
+  // Buttondown doesn't send CORS headers, so the response can't be read;
+  // a network error is the only failure we can detect.
+  const form = document.querySelector<HTMLFormElement>('[data-signup]');
+  if (form) {
+    const status = form.querySelector<HTMLElement>('.status')!;
+    const button = form.querySelector<HTMLButtonElement>('button')!;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      button.disabled = true;
+      status.hidden = true;
+      try {
+        await fetch(form.action, { method: 'POST', body: new FormData(form), mode: 'no-cors' });
+        form.reset();
+        status.textContent = 'Thanks! Check your inbox to confirm your email.';
+      } catch {
+        status.textContent = 'Something went wrong. Please try again.';
+      } finally {
+        status.hidden = false;
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .signup {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  label {
+    color: var(--muted);
+  }
+
+  .row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  input[type='email'] {
+    flex: 1;
+    min-width: 0;
+    padding: 0.7rem 0.9rem;
+    font: inherit;
+    font-size: 1rem;
+    color: var(--fg);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  input[type='email']::placeholder {
+    color: var(--muted);
+  }
+
+  input[type='email']:focus {
+    border-color: var(--fg);
+    outline: none;
+  }
+
+  button {
+    padding: 0.7rem 1.2rem;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--bg);
+    background: var(--fg);
+    border: 1px solid var(--fg);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .status {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 420px) {
+    .row {
+      flex-direction: column;
+    }
+  }
+</style>

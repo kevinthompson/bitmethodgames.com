@@ -1,0 +1,63 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import SignupForm from '../components/SignupForm.astro';
+import { SITE } from '../site.config';
+
+const home = await getEntry('pages', 'home');
+if (!home) throw new Error('Missing src/content/pages/home.md');
+const { Content } = await render(home);
+---
+
+<Base title={home.data.title} description={home.data.description}>
+  <main>
+    <h1><Logo class="logo" /></h1>
+    <div class="intro">
+      <Content />
+    </div>
+    <SignupForm />
+  </main>
+  <footer>&copy; {new Date().getFullYear()} {SITE.name}</footer>
+</Base>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+    width: min(100% - 32px, 34rem);
+    min-height: calc(100dvh - 4rem);
+    margin: 0 auto;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  h1 {
+    margin: 0;
+    line-height: 0;
+  }
+
+  .logo {
+    display: block;
+    width: min(100%, 22rem);
+    height: auto;
+  }
+
+  .intro :global(p) {
+    margin: 0 0 1em;
+  }
+
+  .intro :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  footer {
+    width: min(100% - 32px, 34rem);
+    margin: 0 auto;
+    padding-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+</style>
